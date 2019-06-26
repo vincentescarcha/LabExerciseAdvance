@@ -1,0 +1,6 @@
+TestResults/*
+.vs/*
+LabExerciseAdvance/bin/Debug/*
+LabExerciseAdvance/obj/Debug/*
+LabExerciseAdvance.Test/bin/Debug/*
+LabExerciseAdvance.Test/obj/Debug/*
