@@ -41,7 +41,7 @@ namespace LabExerciseAdvance
             return true;
         }
 
-        public void RegisterPerson(T Person)
+        public void RegisterPerson(T Person) 
         {
             IsPersonValid(Person);
             RegisteredPersons.Add(Person);

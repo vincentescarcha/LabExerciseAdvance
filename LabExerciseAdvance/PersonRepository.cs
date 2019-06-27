@@ -44,15 +44,15 @@ namespace LabExerciseAdvance
                     var age = Common.CalculateAge(Common.ParseDate(values[2]));
 
                     if (age >= 11)
-                        ConvertTo<Adult>(values);
+                        AddAs<Adult>(values);
                     else if (age >= 2 && age < 11)
-                        ConvertTo<Child>(values);
+                        AddAs<Child>(values);
                     else
-                        ConvertTo<Infant>(values);
+                        AddAs<Infant>(values);
                 }
             }
         }
-        public void ConvertTo<T>(string[] values) where T : Person, new ()
+        public void AddAs<T>(string[] values) where T : Person, new ()
         {
             T person = new T();
 
@@ -92,6 +92,7 @@ namespace LabExerciseAdvance
             _persons.Add(person);
             IdCount++;
         }
+        
 
         public int GetCityIdByName(string cityName)
         {

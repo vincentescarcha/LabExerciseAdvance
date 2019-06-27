@@ -6,7 +6,20 @@ using System.Threading.Tasks;
 
 namespace LabExerciseAdvance
 {
-    class Extesions
+    public static class Extesions
     {
+        public static bool TryParseTo<T>(this object value, Type conversionType, out T output)
+        {
+            output = default(T);
+            try
+            {
+                output = (T)Convert.ChangeType(value, conversionType);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

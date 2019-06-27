@@ -30,7 +30,7 @@ namespace LabExerciseAdvance.Test
         {
             string[] values = new[] { "John", "Doe", "19800101", "Male", "Married", "Las Pinas", "Store Manager" };
             PersonRepository personRepo = new PersonRepository();
-            personRepo.ConvertTo<Adult>(values);
+            personRepo.AddAs<Adult>(values);
 
             Assert.AreEqual(typeof(Adult), personRepo.GetSpecific(1).GetType());
         }

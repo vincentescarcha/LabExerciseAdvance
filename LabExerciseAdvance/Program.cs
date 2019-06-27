@@ -15,9 +15,9 @@ namespace LabExerciseAdvance
     {
         public static PersonRepository PersonRepo = new PersonRepository();
         public static CityRepository CityRepo = new CityRepository();
-        public static VotersRegistration<Person> Voters = new VotersRegistration<Person>();
-        public static SchoolRegistration<Person> School = new SchoolRegistration<Person>();
-        public static DayCareRegistration<Person> DayCare = new DayCareRegistration<Person>();
+        public static IRegistration<Adult> Voters = new VotersRegistration<Adult>();
+        public static IRegistration<Child> School = new SchoolRegistration<Child>();
+        public static IRegistration<Infant> DayCare = new DayCareRegistration<Infant>();
         public static void Main(string[] args)
         {
             LoadPersonFromCSV();
@@ -102,16 +102,26 @@ namespace LabExerciseAdvance
                         ExportToXML();
                         break;
                     case "v":
-                        Voters.RegisterPerson(PersonRepo.GetSpecific(1));
-                        Voters.RegisterPerson(PersonRepo.GetSpecific(2));
-                        School.RegisterPerson(PersonRepo.GetSpecific(3));
-                        DayCare.RegisterPerson(PersonRepo.GetSpecific(4));
-                        Voters.RegisterPerson(PersonRepo.GetSpecific(5));
-                        Voters.RegisterPerson(PersonRepo.GetSpecific(6));
-                        School.RegisterPerson(PersonRepo.GetSpecific(7));
-                        School.RegisterPerson(PersonRepo.GetSpecific(8));
-                        Voters.RegisterPerson(PersonRepo.GetSpecific(9));
-                        Voters.RegisterPerson(PersonRepo.GetSpecific(10));
+                        PersonRepo.GetSpecific(1).TryParseTo(typeof(Adult), out Adult person1);
+                        Voters.RegisterPerson(person1);
+                        PersonRepo.GetSpecific(2).TryParseTo(typeof(Adult), out Adult person2);
+                        Voters.RegisterPerson(person2);
+                        PersonRepo.GetSpecific(3).TryParseTo(typeof(Child), out Child person3);
+                        School.RegisterPerson(person3);
+                        PersonRepo.GetSpecific(4).TryParseTo(typeof(Infant), out Infant person4);
+                        DayCare.RegisterPerson(person4);
+                        PersonRepo.GetSpecific(5).TryParseTo(typeof(Adult), out Adult person5);
+                        Voters.RegisterPerson(person5);
+                        PersonRepo.GetSpecific(6).TryParseTo(typeof(Adult), out Adult person6);
+                        Voters.RegisterPerson(person6);
+                        PersonRepo.GetSpecific(7).TryParseTo(typeof(Child), out Child person7);
+                        School.RegisterPerson(person7);
+                        PersonRepo.GetSpecific(8).TryParseTo(typeof(Child), out Child person8);
+                        School.RegisterPerson(person8);
+                        PersonRepo.GetSpecific(9).TryParseTo(typeof(Adult), out Adult person9);
+                        Voters.RegisterPerson(person9);
+                        PersonRepo.GetSpecific(10).TryParseTo(typeof(Adult), out Adult person10);
+                        Voters.RegisterPerson(person10);
                         break;
                     default:
                         ShowError("Error: Invalid Answer");
@@ -169,7 +179,7 @@ namespace LabExerciseAdvance
                 AskTypeForRegistration();
             }
         }
-        public static void AskPersonRegister(string registrationString, IRegistration<Person> registration)
+        public static void AskPersonRegister<T>(string registrationString, IRegistration<T> registration) where T : Person
         {
             Console.WriteLine("\nPlease enter ID you want to Register in " + registrationString + " registration");
             if (int.TryParse(Console.ReadLine().Trim(), out int answer) && answer != 0)
@@ -182,17 +192,22 @@ namespace LabExerciseAdvance
                 AskRegisterAgain();
             }
         }
-        public static void RegisterPerson(int Id, IRegistration<Person> registration)
+        public static void RegisterPerson<T>(int Id, IRegistration<T> registration) where T : Person
         {
             //get person, validate then register
-            var person = PersonRepo.GetSpecific(Id);
             try
             {
+                Person person = PersonRepo.GetSpecific(Id);
                 if (person == null)
                 {
                     throw new Exception("No Record Found");
                 }
-                registration.RegisterPerson(person);
+
+                if (!person.TryParseTo(typeof(T), out T convertedPerson))
+                {
+                    throw new Exception("Person is not "+typeof(T).Name);
+                }
+                registration.RegisterPerson(convertedPerson);
                 ShowMessage("Person Registered!");
             }
             catch (Exception ex)
@@ -251,7 +266,7 @@ namespace LabExerciseAdvance
                 AskTypeForUnregistration();
             }
         }
-        public static void AskPersonUnregister(string registrationString, IRegistration<Person> registration)
+        public static void AskPersonUnregister<T>(string registrationString, IRegistration<T> registration) where T : Person
         {
             Console.WriteLine("\nPlease enter ID you want to Unregister in " + registrationString + " registration");
             if (int.TryParse(Console.ReadLine().Trim(), out int answer) && answer != 0)
@@ -264,7 +279,7 @@ namespace LabExerciseAdvance
                 AskRegisterAgain();
             }
         }
-        public static void UnregisterPerson(int Id, IRegistration<Person> registration)
+        public static void UnregisterPerson<T>(int Id, IRegistration<T> registration) where T : Person
         {
             //get person, validate then register
             var person = PersonRepo.GetSpecific(Id);
@@ -333,7 +348,7 @@ namespace LabExerciseAdvance
                 AskTypeForShowing();
             }
         }
-        public static void AskGroupForShowining(string registrationString, IRegistration<Person> registration)
+        public static void AskGroupForShowining<T>(string registrationString, IRegistration<T> registration) where T : Person
         {
             Console.WriteLine("\nGroup by?");
             Console.WriteLine("(C)ity |  (P)rovince  |  (R)egion");
@@ -362,7 +377,7 @@ namespace LabExerciseAdvance
                 AskGroupForShowining(registrationString,registration);
             }
         }
-        public static void ShowRegistration(string registrationString, IRegistration<Person> registration, string groupBy = "")
+        public static void ShowRegistration<T>(string registrationString, IRegistration<T> registration, string groupBy = "") where T : Person
         {
             var registeredPersons = registration.GetRegisteredPersons();
             var cities = CityRepo.GetList;
@@ -380,7 +395,7 @@ namespace LabExerciseAdvance
                                                 ID =p.ID,
                                                 FirstName = p.FirstName,
                                                 LastName = p.LastName,
-                                                DateOfBirth = p.DateOfBirth,
+                                                DateOfBirth = p.DateOfBirth.ToString("MMM dd, yyyy"),
                                                 Gender = p.Gender,
                                                 Status = p.Status,
                                                 CityName = c.Name,
@@ -405,7 +420,7 @@ namespace LabExerciseAdvance
                                                         "Status", "City", "Province", "Region");
             foreach (var person in persons)
             {
-                table.AddRow(person.ID, person.FirstName, person.LastName, person.DateOfBirth.ToString("MMM dd, yyyy"),
+                table.AddRow(person.ID, person.FirstName, person.LastName, person.DateOfBirth,
                              person.Gender, person.Status, person.CityName, person.Province, person.Region);
             }
             table.Write();
@@ -460,17 +475,17 @@ namespace LabExerciseAdvance
                 AskTypeForSearching();
             }
         }
-        public static void SearchPersonRegistered(IRegistration<Person> registration, string registrationString)
+        public static void SearchPersonRegistered<T>(IRegistration<T> registration, string registrationString) where T : Person
         {
             Console.Write("\nSearch For: ");
             string searchKey = Console.ReadLine().Trim();
 
-            List<Person> personList = registration.SearchRegisteredPersons(searchKey);
+            List<T> personList = registration.SearchRegisteredPersons(searchKey);
 
             Console.WriteLine();
             Console.WriteLine($"Searching for \"{searchKey}\" in "+ registrationString);
 
-            DisplayTable(personList);
+            DisplayTable(personList.Cast<Person>().ToList());
 
             Console.WriteLine();
         }
@@ -484,7 +499,7 @@ namespace LabExerciseAdvance
             ShowMessage("Export Success!");
             //Process.Start("explorer.exe", AppDomain.CurrentDomain.BaseDirectory);
         }
-        public static void ExportToXML(IRegistration<Person> registration, string registrationString)
+        public static void ExportToXML<T>(IRegistration<T> registration, string registrationString) where T : Person
         {
             var registeredPersons = registration.GetRegisteredPersons();
             var cities = CityRepo.GetList;
@@ -494,7 +509,7 @@ namespace LabExerciseAdvance
                                                 ID = p.ID,
                                                 FirstName = p.FirstName,
                                                 LastName = p.LastName,
-                                                DateOfBirth = p.DateOfBirth,
+                                                DateOfBirth = p.DateOfBirth.ToString("MMM dd, yyyy"),
                                                 Age = p.Age,
                                                 Gender = p.Gender,
                                                 Status = p.Status,
@@ -513,7 +528,7 @@ namespace LabExerciseAdvance
                         new XAttribute("FirstName", person.FirstName),
                         new XAttribute("LastName", person.LastName),
                         new XAttribute("PersonType", person.PersonType),
-                        new XAttribute("DateOfBirth", person.DateOfBirth.ToString("MMM dd, yyyy")),
+                        new XAttribute("DateOfBirth", person.DateOfBirth),
                         new XAttribute("Age", person.Age),
                         new XAttribute("Gender", person.Gender),
                         new XAttribute("Status", person.Status),
