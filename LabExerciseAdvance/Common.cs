@@ -22,7 +22,7 @@ namespace LabExerciseAdvance
                           CultureInfo.InvariantCulture,
                           DateTimeStyles.None, out DateTime dob))
             {
-                //throw new Exception("Cant Convert String to Datetime");
+                throw new Exception("Cant Convert String to Datetime");
             }
             return dob;
         }

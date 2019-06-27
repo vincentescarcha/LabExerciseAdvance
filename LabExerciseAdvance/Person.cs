@@ -26,6 +26,7 @@ namespace LabExerciseAdvance
         public Status Status { get; set; }
         public Gender Gender { get; set; }
         public int CityId { get; set; }
+
     }
     public enum Gender
     {

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace LabExerciseAdvance
@@ -40,18 +41,54 @@ namespace LabExerciseAdvance
                 {
                     string line = reader.ReadLine();
                     string[] values = line.Split('|');
-
-                    var age = Common.CalculateAge(Common.ParseDate(values[2]));
-
-                    if (age >= 11)
-                        AddAs<Adult>(values);
-                    else if (age >= 2 && age < 11)
-                        AddAs<Child>(values);
-                    else
-                        AddAs<Infant>(values);
+                    Add(values);
                 }
             }
         }
+        public void Validate(string[] values)
+        {
+            string message = "";
+
+            if (!Regex.IsMatch(values[0], @"^[a-zA-Z\ ]+$"))
+            {
+                message += "First Name should contain Alpha characters only\n";
+            }
+            if (!Regex.IsMatch(values[1], @"^[a-zA-Z\ ]+$"))
+            {
+                message += "Last Name should contain Alpha characters only\n";
+            }
+
+            try
+            {
+                Common.ParseDate(values[2]);
+            }
+            catch
+            {
+                message += "Date Of Birth should be in correct format\n";
+            }
+
+            if (values[3].ToLower() != "male" && values[3].ToLower() != "female")
+            {
+                message += "Gender can only be Male or Female\n";
+            }
+
+            if (message != "")
+            {
+                throw new Exception(message);
+            }
+        }
+        public void Add(string[] values)
+        {
+            var age = Common.CalculateAge(Common.ParseDate(values[2]));
+
+            if (age >= 11)
+                AddAs<Adult>(values);
+            else if (age >= 2 && age < 11)
+                AddAs<Child>(values);
+            else
+                AddAs<Infant>(values);
+        }
+
         public void AddAs<T>(string[] values) where T : Person, new ()
         {
             T person = new T();

@@ -80,12 +80,19 @@ namespace LabExerciseAdvance
         public static void AskFunction()
         {
             Console.WriteLine("\nWhat do you want to do next?");
-            Console.WriteLine("(R)egister  |  (U)nregister  |  (S)how Registered |  Searc(h) |  (E)xport");
+            Console.WriteLine("(A)dd Person  |  Show (P)erson |  (R)egister  |  (U)nregister  |  " +
+                "(S)how Registered |  Searc(h) |  (E)xport");
             string answer = Console.ReadLine().Trim();
             if (answer.Length > 0)
             {
                 switch (answer[0].ToString().ToLower())
                 {
+                    case "a":
+                        InputPerson();
+                        break;
+                    case "p":
+                        PersonView();
+                        break;
                     case "r":
                         AskTypeForRegistration();
                         break;
@@ -129,6 +136,56 @@ namespace LabExerciseAdvance
                 }
             }
             AskFunction();
+        }
+
+
+        public static void InputPerson()
+        {
+            Console.WriteLine("\nPlease input formated Person:");
+            string input = Console.ReadLine().Trim();
+            ProcessInputPerson(input);
+        }
+        public static void ProcessInputPerson(string input)
+        {
+            string[] values = input.Split('|');
+
+            try
+            {
+                PersonRepo.Validate(values);
+                PersonRepo.Add(values);
+                ShowMessage("Successfully Added! ID: "+PersonRepo.GetList.Last().ID);
+            }
+            catch (Exception ex)
+            {
+                ShowError("Error:\n" + ex.Message);
+            }
+            AskInputPersonAgain();
+        }
+        public static void AskInputPersonAgain()
+        {
+            Console.WriteLine("\nDo you want to Add again? (y)/(n)");
+            string answer = Console.ReadLine().Trim();
+            if (!string.IsNullOrEmpty(answer) && answer.Trim()[0].ToString().ToLower() == "y")
+            {
+                InputPerson();
+            }
+            else if (!string.IsNullOrEmpty(answer) && answer.Trim()[0].ToString().ToLower() == "n")
+            {
+                AskFunction();
+            }
+            else
+            {
+                ShowError("Error: Invalid answer\n");
+                AskInputPersonAgain();
+            }
+        }
+
+
+        public static void PersonView()
+        {
+            var personList = PersonRepo.GetList;
+            ShowMessage("\nShowing List of Persons");
+            DisplayTable(personList);
         }
 
 
@@ -377,7 +434,8 @@ namespace LabExerciseAdvance
                 AskGroupForShowining(registrationString,registration);
             }
         }
-        public static void ShowRegistration<T>(string registrationString, IRegistration<T> registration, string groupBy = "") where T : Person
+        public static void ShowRegistration<T>(string registrationString, IRegistration<T> registration, string groupBy = "") 
+                                where T : Person
         {
             var registeredPersons = registration.GetRegisteredPersons();
             var cities = CityRepo.GetList;
@@ -481,9 +539,8 @@ namespace LabExerciseAdvance
             string searchKey = Console.ReadLine().Trim();
 
             List<T> personList = registration.SearchRegisteredPersons(searchKey);
-
-            Console.WriteLine();
-            Console.WriteLine($"Searching for \"{searchKey}\" in "+ registrationString);
+            
+            ShowMessage($"\nSearching for \"{searchKey}\" in "+ registrationString);
 
             DisplayTable(personList.Cast<Person>().ToList());
 
