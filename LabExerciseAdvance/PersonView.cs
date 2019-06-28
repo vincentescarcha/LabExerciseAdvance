@@ -15,7 +15,7 @@ namespace LabExerciseAdvance
         public int Age { get; set; }
         public Status Status { get; set; }
         public Gender Gender { get; set; }
-        public string CityName { get; set; }
+        public string City { get; set; }
         public string Province { get; set; }
         public string Region { get; set; }
         public string PersonType { get; set; }

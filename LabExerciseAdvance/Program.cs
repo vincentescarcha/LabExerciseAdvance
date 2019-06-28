@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Globalization;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace LabExerciseAdvance
 {
@@ -48,11 +49,11 @@ namespace LabExerciseAdvance
                 }
             }
 
-            DisplayTable(persons);
+            DisplayPerson(persons);
         }
 
 
-        public static void DisplayTable(List<Person> persons)
+        public static void DisplayPerson(List<Person> persons)
         {
             ConsoleTable table = new ConsoleTable("ID", "First Name", "Last Name", "Date of Birth", "Gender", "Status","   ", "   ");
             foreach (var person in persons)
@@ -185,7 +186,7 @@ namespace LabExerciseAdvance
         {
             var personList = PersonRepo.GetList;
             ShowMessage("\nShowing List of Persons");
-            DisplayTable(personList);
+            DisplayPerson(personList);
         }
 
 
@@ -415,7 +416,7 @@ namespace LabExerciseAdvance
                 switch (answer[0].ToString().ToLower())
                 {
                     case "c":
-                        ShowRegistration(registrationString, registration, "CityName");
+                        ShowRegistration(registrationString, registration, "City");
                         break;
                     case "p":
                         ShowRegistration(registrationString, registration, "Province");
@@ -438,7 +439,6 @@ namespace LabExerciseAdvance
                                 where T : Person
         {
             var registeredPersons = registration.GetRegisteredPersons();
-            var cities = CityRepo.GetList;
             
             ShowMessage("\n\t" + registrationString + " Registration Group By " + groupBy );
 
@@ -448,38 +448,25 @@ namespace LabExerciseAdvance
                 return;
             }
 
-            var joinPersonsCities = registeredPersons.Join(cities, p => p.CityId, c => c.ID,
-                                            (p, c) => new PersonView {
-                                                ID =p.ID,
-                                                FirstName = p.FirstName,
-                                                LastName = p.LastName,
-                                                DateOfBirth = p.DateOfBirth.ToString("MMM dd, yyyy"),
-                                                Gender = p.Gender,
-                                                Status = p.Status,
-                                                CityName = c.Name,
-                                                Province = c.Province,
-                                                Region = c.Region
-                                            });
+            var joinPersonsCities = registeredPersons.Cast<Person>().ToPersonView();
 
-            var propertyInfo = typeof(PersonView).GetProperty(groupBy);
+            var groupedPersons = joinPersonsCities.Group(groupBy);
 
-            var groupedPersons = joinPersonsCities.GroupBy(x => propertyInfo.GetValue(x, null).ToString(),
-                                        StringComparer.InvariantCultureIgnoreCase);
             foreach (var groupedPerson in groupedPersons)
             {
                 ShowMessage(groupedPerson.Key);
-                DisplayGroupedTable(groupedPerson.ToList());
+                DisplayPersonView(groupedPerson.ToList());
                 Console.WriteLine();
             }
         }
-        public static void DisplayGroupedTable(List<PersonView> persons)
+        public static void DisplayPersonView(List<PersonView> persons)
         {
-            ConsoleTable table = new ConsoleTable("ID", "First Name", "Last Name", "Date of Birth", "Gender",
+            ConsoleTable table = new ConsoleTable("ID", "First Name", "Last Name", "Age", "Gender",
                                                         "Status", "City", "Province", "Region");
             foreach (var person in persons)
             {
-                table.AddRow(person.ID, person.FirstName, person.LastName, person.DateOfBirth,
-                             person.Gender, person.Status, person.CityName, person.Province, person.Region);
+                table.AddRow(person.ID, person.FirstName, person.LastName, person.Age,
+                             person.Gender, person.Status, person.City, person.Province, person.Region);
             }
             table.Write();
         }
@@ -487,7 +474,7 @@ namespace LabExerciseAdvance
 
         public static void AskSearchAgain()
         {
-            Console.WriteLine("Do you want to Search again? (y)/(n)");
+            Console.WriteLine("\nDo you want to Search again? (y)/(n)");
             string answer = Console.ReadLine().Trim();
             if (!string.IsNullOrEmpty(answer) && answer.Trim()[0].ToString().ToLower() == "y")
             {
@@ -533,20 +520,89 @@ namespace LabExerciseAdvance
                 AskTypeForSearching();
             }
         }
-        public static void SearchPersonRegistered<T>(IRegistration<T> registration, string registrationString) where T : Person
+        public static void SearchPersonRegistered<T>(IRegistration<T> registration, string registrationString)
+            where T : Person
         {
             Console.Write("\nSearch For: ");
             string searchKey = Console.ReadLine().Trim();
 
-            List<T> personList = registration.SearchRegisteredPersons(searchKey);
-            
-            ShowMessage($"\nSearching for \"{searchKey}\" in "+ registrationString);
 
-            DisplayTable(personList.Cast<Person>().ToList());
+            Console.WriteLine("\n Search In:");
+            Console.WriteLine("(E)veryWhere  |  (F)irst Name  |  (L)ast Name  |  (A)ge Range  |  (G)ender  \n  (S)tatus  |" +
+                "  (C)ity  |  (P)rovince  |  (R)egion");
 
-            Console.WriteLine();
+            string answer = Console.ReadLine().Trim();
+            if (answer.Length > 0)
+            {
+                switch (answer[0].ToString().ToLower())
+                {
+                    case "e":
+                        SearchPersonRegistered(registration, registrationString, searchKey, "");
+                        break;
+                    case "f":
+                        SearchPersonRegistered(registration, registrationString, searchKey, "FirstName");
+                        break;
+                    case "l":
+                        SearchPersonRegistered(registration, registrationString, searchKey, "LastName");
+                        break;
+                    case "a":
+                        try
+                        {
+                            ValidateSearchKey(searchKey);
+                            SearchPersonRegistered(registration, registrationString, searchKey, "Age Range");
+                        }
+                        catch (Exception ex)
+                        {
+                            ShowError(ex.Message);
+                        }
+                        break;
+                    case "g":
+                        SearchPersonRegistered(registration, registrationString, searchKey, "Gender");
+                        break;
+                    case "s":
+                        SearchPersonRegistered(registration, registrationString, searchKey, "Status");
+                        break;
+                    case "c":
+                        SearchPersonRegistered(registration, registrationString, searchKey, "City");
+                        break;
+                    case "p":
+                        SearchPersonRegistered(registration, registrationString, searchKey, "Province");
+                        break;
+                    case "r":
+                        SearchPersonRegistered(registration, registrationString, searchKey, "Region");
+                        break;
+                    default:
+                        ShowError("Error: Function not found\n");
+                        break;
+                }
+                AskSearchAgain();
+            }
+            else
+            {
+                SearchPersonRegistered(registration, registrationString);
+            }
         }
 
+        public static void ValidateSearchKey(string AgeRange)
+        {
+            if (!Regex.IsMatch(AgeRange, @"^\d+\-\d+$"))
+            {
+                throw new Exception("Search of Age Range doesn't match on specific format: N-N");
+            }
+            var split = AgeRange.Split('-');
+            if (Convert.ToInt32(split[0]) > Convert.ToInt32(split[1]))
+            {
+                throw new Exception("Age Range left side is greater than right");
+            }
+        }
+
+        public static void SearchPersonRegistered<T>(IRegistration<T> registration, 
+            string registrationString, string key, string field) where T : Person
+        {
+            ShowMessage($"\nSearching for \"{key}\" in {field} at {registrationString} Registration");
+            var personList = registration.SearchRegisteredPersons(key, field);
+            DisplayPersonView(personList);
+        }
 
         public static void ExportToXML()
         {
@@ -559,22 +615,7 @@ namespace LabExerciseAdvance
         public static void ExportToXML<T>(IRegistration<T> registration, string registrationString) where T : Person
         {
             var registeredPersons = registration.GetRegisteredPersons();
-            var cities = CityRepo.GetList;
-            var joinPersonsCities = registeredPersons.Join(cities, p => p.CityId, c => c.ID,
-                                            (p, c) => new PersonView
-                                            {
-                                                ID = p.ID,
-                                                FirstName = p.FirstName,
-                                                LastName = p.LastName,
-                                                DateOfBirth = p.DateOfBirth.ToString("MMM dd, yyyy"),
-                                                Age = p.Age,
-                                                Gender = p.Gender,
-                                                Status = p.Status,
-                                                PersonType = p.GetType().Name,
-                                                CityName = c.Name,
-                                                Province = c.Province,
-                                                Region = c.Region
-                                            });
+            var joinPersonsCities = registeredPersons.Cast<Person>().ToPersonView();
 
             var documentNode = new XDocument();
             var personsNode = new XElement("Persons");
@@ -589,7 +630,7 @@ namespace LabExerciseAdvance
                         new XAttribute("Age", person.Age),
                         new XAttribute("Gender", person.Gender),
                         new XAttribute("Status", person.Status),
-                        new XAttribute("City", person.CityName),
+                        new XAttribute("City", person.City),
                         new XAttribute("Province", person.Province),
                         new XAttribute("Region", person.Region)
 
@@ -597,8 +638,10 @@ namespace LabExerciseAdvance
                 personsNode.Add(personNode);
             }
             documentNode.Add(personsNode);
-            documentNode.Save(registrationString+".xml");
+            documentNode.Save(registrationString + ".xml");
         }
+
+        
 
         public static void ShowError(string msg)
         {

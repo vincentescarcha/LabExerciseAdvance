@@ -122,10 +122,10 @@ namespace LabExerciseAdvance.Test
             school.RegisterPerson(GetAllPerson()[6]);
             school.RegisterPerson(GetAllPerson()[7]);
 
-            var result1 = school.SearchRegisteredPersons("ASD").Count;
+            var result1 = school.SearchRegisteredPersons("ASD","").Count;
             Assert.AreEqual(0, result1);
 
-            Person person = school.SearchRegisteredPersons("Jet")[0];
+            var person = school.SearchRegisteredPersons("Jet","FirstName")[0];
 
             Assert.AreEqual("Smith",person.LastName);
             Assert.AreEqual("Jet", person.FirstName);
@@ -192,10 +192,10 @@ namespace LabExerciseAdvance.Test
             Voters.RegisterPerson(GetAllPerson()[1]);
             Voters.RegisterPerson(GetAllPerson()[4]);
 
-            var result1 = Voters.SearchRegisteredPersons("ASD").Count;
+            var result1 = Voters.SearchRegisteredPersons("ASD","").Count;
             Assert.AreEqual(0, result1);
 
-            Person person = Voters.SearchRegisteredPersons("Jake")[0];
+            var person = Voters.SearchRegisteredPersons("Jake","FirstName")[0];
 
             Assert.AreEqual("Smith", person.LastName);
             Assert.AreEqual("Jake", person.FirstName);
@@ -262,10 +262,10 @@ namespace LabExerciseAdvance.Test
 
             List<Person> x = new List<Person>();
 
-            var result1 = DayCare.SearchRegisteredPersons("ASD").Count;
+            var result1 = DayCare.SearchRegisteredPersons("ASD","").Count;
             Assert.AreEqual(0, result1);
 
-            var result2 = DayCare.SearchRegisteredPersons("June").Count;
+            var result2 = DayCare.SearchRegisteredPersons("June","FirstName").Count;
             Assert.AreEqual(1, result2);
         }
         [TestMethod]

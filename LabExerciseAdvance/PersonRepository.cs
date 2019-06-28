@@ -91,18 +91,19 @@ namespace LabExerciseAdvance
 
         public void AddAs<T>(string[] values) where T : Person, new ()
         {
-            T person = new T();
+            T person = new T
+            {
+                ID = IdCount,
+                FirstName = values[0],
+                LastName = values[1],
 
-            person.ID = IdCount;
-            person.FirstName = values[0];
-            person.LastName = values[1];
+                DateOfBirth = Common.ParseDate(values[2]),
 
-            person.DateOfBirth = Common.ParseDate(values[2]);
+                Gender = (Gender)Enum.Parse(typeof(Gender), values[3]),
+                Status = (Status)Enum.Parse(typeof(Status), values[4]),
 
-            person.Gender = (Gender)Enum.Parse(typeof(Gender), values[3]);
-            person.Status = (Status)Enum.Parse(typeof(Status), values[4]);
-
-            person.CityId = GetCityIdByName(values[5]);
+                CityId = GetCityIdByName(values[5])
+            };
 
             if (typeof(T) == typeof(Adult))
             {

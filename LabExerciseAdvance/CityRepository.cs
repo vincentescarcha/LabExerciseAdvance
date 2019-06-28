@@ -41,11 +41,13 @@ namespace LabExerciseAdvance
         }
         public void Add(string[] values)
         {
-            City city = new City();
-            city.ID = IdCount;
-            city.Name = values[0];
-            city.Province = values[1];
-            city.Region = values[2];
+            City city = new City
+            {
+                ID = IdCount,
+                Name = values[0],
+                Province = values[1],
+                Region = values[2]
+            };
 
             _city.Add(city);
             IdCount++;

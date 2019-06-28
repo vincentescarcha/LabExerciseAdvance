@@ -42,16 +42,9 @@ namespace LabExerciseAdvance
             RegisteredPersons.Add(Person);
         }
 
-        public List<T> SearchRegisteredPersons(string searchKey)
+        public List<PersonView> SearchRegisteredPersons(string searchKey, string searchField)
         {
-            return GetRegisteredPersons().Where(
-                            p =>
-                                p.FirstName.IndexOf(searchKey, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                p.LastName.IndexOf(searchKey, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                p.DateOfBirth.ToString("MMM dd, yyyy").IndexOf(searchKey, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                p.Gender.ToString().IndexOf(searchKey, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                p.Status.ToString().IndexOf(searchKey, StringComparison.OrdinalIgnoreCase) >= 0
-                            ).ToList();
+            return GetRegisteredPersons().ToPersonView().Search(searchKey,searchField).ToList();
         }
 
         public void UnregisterPerson(int personId)
