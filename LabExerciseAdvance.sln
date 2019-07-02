@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabExerciseAdvance", "LabExerciseAdvance\LabExerciseAdvance.csproj", "{74FD21DE-E3D9-470B-A045-21AA05DA9808}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabExerciseAdvance.Test", "LabExerciseAdvance.Test\LabExerciseAdvance.Test.csproj", "{836640ED-AC2A-4A9D-90CE-2E46CD1F04A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LabExerciseAdvance.Test", "LabExerciseAdvance.Test\LabExerciseAdvance.Test.csproj", "{836640ED-AC2A-4A9D-90CE-2E46CD1F04A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

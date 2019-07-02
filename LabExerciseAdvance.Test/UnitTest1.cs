@@ -103,8 +103,8 @@ namespace LabExerciseAdvance.Test
         public void SchoolAddTestWithDuplicatePerson()
         {
             SchoolRegistration<Person> school = new SchoolRegistration<Person>();
-            school.RegisterPerson(GetAllPerson()[0]);
-            school.RegisterPerson(GetAllPerson()[0]);
+            school.RegisterPerson(GetAllPerson()[2]);
+            school.RegisterPerson(GetAllPerson()[2]);
         }
         [TestMethod]
         public void SchoolTestIsPersonRegistered()
@@ -122,13 +122,14 @@ namespace LabExerciseAdvance.Test
             school.RegisterPerson(GetAllPerson()[6]);
             school.RegisterPerson(GetAllPerson()[7]);
 
-            var result1 = school.SearchRegisteredPersons("ASD","").Count;
+            var result1 = school.GetRegisteredPersons().ToPersonView().Search("ASD", "LastName").Count();
             Assert.AreEqual(0, result1);
 
-            var person = school.SearchRegisteredPersons("Jet","FirstName")[0];
+            var person = school.GetRegisteredPersons().ToPersonView().Search("Jet", "FirstName").FirstOrDefault();
 
-            Assert.AreEqual("Smith",person.LastName);
+            Assert.AreEqual("Smith", person.LastName);
             Assert.AreEqual("Jet", person.FirstName);
+            
         }
         [TestMethod]
         public void SchoolUnregisterPerson()
@@ -144,6 +145,16 @@ namespace LabExerciseAdvance.Test
 
             Assert.AreEqual(2, school.GetRegisteredPersons().Count);
         }
+        [TestMethod]
+        [ExpectedException(typeof(Exception), "Person is not Registered")]
+        public void SchoolUnregisteringNotRegisteredPerson()
+        {
+            SchoolRegistration<Person> School = new SchoolRegistration<Person>();
+
+            School.UnregisterPerson(1);
+        }
+
+
 
 
         [TestMethod]
@@ -192,13 +203,14 @@ namespace LabExerciseAdvance.Test
             Voters.RegisterPerson(GetAllPerson()[1]);
             Voters.RegisterPerson(GetAllPerson()[4]);
 
-            var result1 = Voters.SearchRegisteredPersons("ASD","").Count;
+            var result1 = Voters.GetRegisteredPersons().ToPersonView().Search("ASD", "LastName").Count();
             Assert.AreEqual(0, result1);
 
-            var person = Voters.SearchRegisteredPersons("Jake","FirstName")[0];
+            var person = Voters.GetRegisteredPersons().ToPersonView().Search("Jake", "FirstName").FirstOrDefault();
 
             Assert.AreEqual("Smith", person.LastName);
             Assert.AreEqual("Jake", person.FirstName);
+            
         }
         [TestMethod]
         public void VotersUnregisterPerson()
@@ -214,6 +226,16 @@ namespace LabExerciseAdvance.Test
 
             Assert.AreEqual(2, Voters.GetRegisteredPersons().Count);
         }
+        [TestMethod]
+        [ExpectedException(typeof(Exception), "Person is not Registered")]
+        public void VotersUnregisteringNotRegisteredPerson()
+        {
+            VotersRegistration<Person> Voters = new VotersRegistration<Person>();
+
+            Voters.UnregisterPerson(1);
+        }
+
+
 
 
         [TestMethod]
@@ -262,11 +284,12 @@ namespace LabExerciseAdvance.Test
 
             List<Person> x = new List<Person>();
 
-            var result1 = DayCare.SearchRegisteredPersons("ASD","").Count;
+            var result1 = DayCare.GetRegisteredPersons().ToPersonView().Search("ASD", "LastName").Count();
             Assert.AreEqual(0, result1);
 
-            var result2 = DayCare.SearchRegisteredPersons("June","FirstName").Count;
+            var result2 = DayCare.GetRegisteredPersons().ToPersonView().Search("June", "FirstName").Count();
             Assert.AreEqual(1, result2);
+            
         }
         [TestMethod]
         public void DayCareUnregisterPerson()
@@ -280,8 +303,53 @@ namespace LabExerciseAdvance.Test
 
             Assert.AreEqual(0, DayCare.GetRegisteredPersons().Count);
         }
+        [TestMethod]
+        [ExpectedException(typeof(Exception), "Person is not Registered")]
+        public void DayCareUnregisteringNotRegisteredPerson()
+        {
+            DayCareRegistration<Person> DayCare = new DayCareRegistration<Person>();
+
+            DayCare.UnregisterPerson(4);
+        }
 
 
+
+
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void PersonValidateWithValidValues()
+        {
+            //Arrange
+            string[] values = new string[] { "J0hn", "D0e", "19800101", "Male", "Store Manager", "Running" };
+            //Act
+            PersonRepository repo = new PersonRepository();
+            repo.Validate(values);
+            //Assert
+        }
+        [TestMethod]
+        [ExpectedException(typeof(Exception), "Date Of Birth should be in correct format"
+            + "Gender can only be Male or Female")]
+        public void PersonValidateWithInvalidValues()
+        {
+            //Arrange
+            string[] values = new string[] { "John", "Doe", "yyyyMMdd", "", "", "" };
+            //Act
+            PersonRepository repo = new PersonRepository();
+            repo.Validate(values);
+            //Assert
+        }
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void PersonValidateWithInvalidValues2()
+        {
+            //Arrange
+            string[] values = new string[] { "" };
+            //Act
+            PersonRepository repo = new PersonRepository();
+            repo.Validate(values);
+            //Assert
+        }
         [TestMethod]
         public void CommonCalculateAgeTestValid()
         {
@@ -292,6 +360,53 @@ namespace LabExerciseAdvance.Test
             int actual = Common.CalculateAge(date);
             //Assert
             Assert.AreEqual(expected, actual);
+        }
+        [TestMethod]
+        [ExpectedException(typeof(Exception), "asd.text File Does not Exist")]
+        public void CommonCheckCurrentDirectory()
+        {
+            Common.CheckCurrentDirectory("asd.text");
+        }
+
+
+
+        [TestMethod]
+        public void ExtensionTryParseValid()
+        {
+            if (GetAllPerson()[1].TryParseTo(typeof(Adult), out Adult person1))
+            {
+
+            }
+            else
+            {
+                Assert.Fail();
+            }
+        }
+        [TestMethod]
+        public void ExtensionTryParseInvalid()
+        {
+            if (GetAllPerson()[3].TryParseTo(typeof(Adult), out Adult person1))
+            {
+                Assert.Fail();
+            }
+            else
+            {
+
+            }
+        }
+        [TestMethod]
+        public void ExtensionSearchByAge()
+        {
+            var count = GetAllPerson().ToPersonView().SearchByAge(38, 38).Count();
+
+            Assert.AreEqual(2, count);
+        }
+        [TestMethod]
+        public void ExtensionSearchByFieldList()
+        {
+            var count = GetAllPerson().ToPersonView().Search("jo", new List<string> { "FirstName","LastName" }).Count();
+
+            Assert.AreEqual(3, count);
         }
     }
 }

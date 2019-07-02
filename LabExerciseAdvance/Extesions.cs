@@ -24,51 +24,45 @@ namespace LabExerciseAdvance
             }
         }
 
-        public static IEnumerable<PersonView> ToPersonView(this IEnumerable<Person> registeredPersons) 
+        public static IEnumerable<PersonView> ToPersonView(this IEnumerable<Person> persons)
         {
-            return registeredPersons.Join(cities.GetList, p => p.CityId, c => c.ID,
+            return persons.Join(cities.GetList, p => p.CityId, c => c.ID,
                 (p, c) => new PersonView
-                    {
-                        ID = p.ID,
-                        FirstName = p.FirstName,
-                        LastName = p.LastName,
-                        DateOfBirth = p.DateOfBirth.ToString("MMM dd, yyyy"),
-                        Age = p.Age,
-                        Gender = p.Gender,
-                        Status = p.Status,
-                        PersonType = p.GetType().Name,
-                        City = c.Name,
-                        Province = c.Province,
-                        Region = c.Region
-                    }
+                {
+                    ID = p.ID,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    DateOfBirth = p.DateOfBirth.ToString("MMM dd, yyyy"),
+                    Age = p.Age,
+                    Gender = p.Gender.ToString(),
+                    Status = p.Status.ToString(),
+                    PersonType = p.GetType().Name,
+                    City = c.Name,
+                    Province = c.Province,
+                    Region = c.Region
+                }
                 );
         }
 
-        public static IEnumerable<PersonView> Search (this IEnumerable<PersonView> persons, string searchKey, string searchField)
+        public static IEnumerable<PersonView> Search(this IEnumerable<PersonView> persons, string searchKey, List<string> searchFields)
         {
-            if (searchField == "Age Range")
-            {
-                var range = searchKey.Split('-');
-                return persons.Where(x => Convert.ToInt32(range[0]) <= x.Age &&
-                            x.Age <= Convert.ToInt32(range[1])).ToList();
-            }
-            else if (searchField != "")
-            {
-                var propertyInfo = typeof(PersonView).GetProperty(searchField);
-                return persons.Where(x => propertyInfo.GetValue(x, null).ToString().IndexOf(searchKey,
-                        StringComparison.OrdinalIgnoreCase) >= 0).ToList();
-            }
-            else
-            {
-                return persons.Where(
-                            p =>
-                                p.FirstName.IndexOf(searchKey, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                p.LastName.IndexOf(searchKey, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                p.DateOfBirth.IndexOf(searchKey, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                p.Gender.ToString().IndexOf(searchKey, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                p.Status.ToString().IndexOf(searchKey, StringComparison.OrdinalIgnoreCase) >= 0
-                            ).ToList();
-            }
+            List<PersonView> _tempView = new List<PersonView>();
+
+            searchFields.ForEach(x => { _tempView.AddRange(persons.Search(searchKey, x)); });
+
+            return _tempView;
+        }
+        public static IEnumerable<PersonView> Search(this IEnumerable<PersonView> persons, string searchKey, string searchField)
+        {
+            var propertyInfo = typeof(PersonView).GetProperty(searchField);
+
+            return persons.Where(x => propertyInfo.GetValue(x, null).ToString().IndexOf(searchKey,
+                        StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        public static IEnumerable<PersonView> SearchByAge(this IEnumerable<PersonView> persons, int ageFrom, int ageTo)
+        {
+            return persons.Where(x => ageFrom <= x.Age && x.Age <= ageTo).ToList();
         }
         public static IEnumerable<IGrouping<string,PersonView>> Group(this IEnumerable<PersonView> persons, string groupingField)
         {

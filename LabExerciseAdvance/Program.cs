@@ -81,7 +81,7 @@ namespace LabExerciseAdvance
         public static void AskFunction()
         {
             Console.WriteLine("\nWhat do you want to do next?");
-            Console.WriteLine("(A)dd Person  |  Show (P)erson |  (R)egister  |  (U)nregister  |  " +
+            Console.WriteLine("(A)dd Person  |  Show (P)erson  |  (R)egister  |  (U)nregister  |  " +
                 "(S)how Registered |  Searc(h) |  (E)xport");
             string answer = Console.ReadLine().Trim();
             if (answer.Length > 0)
@@ -501,13 +501,13 @@ namespace LabExerciseAdvance
                 switch (answer[0].ToString().ToLower())
                 {
                     case "v":
-                        SearchPersonRegistered(Voters, "Voters");
+                        SearchBy(Voters, "Voters");
                         break;
                     case "s":
-                        SearchPersonRegistered(School, "School");
+                        SearchBy(School, "School");
                         break;
                     case "d":
-                        SearchPersonRegistered(DayCare, "DayCare");
+                        SearchBy(DayCare, "DayCare");
                         break;
                     default:
                         ShowError("Error: Function not found\n");
@@ -520,65 +520,121 @@ namespace LabExerciseAdvance
                 AskTypeForSearching();
             }
         }
-        public static void SearchPersonRegistered<T>(IRegistration<T> registration, string registrationString)
+
+        public static void SearchBy<T>(IRegistration<T> registration, string registrationString)
             where T : Person
         {
-            Console.Write("\nSearch For: ");
-            string searchKey = Console.ReadLine().Trim();
-
-
-            Console.WriteLine("\n Search In:");
-            Console.WriteLine("(E)veryWhere  |  (F)irst Name  |  (L)ast Name  |  (A)ge Range  |  (G)ender  \n  (S)tatus  |" +
-                "  (C)ity  |  (P)rovince  |  (R)egion");
-
+            Console.WriteLine("\nWhat do you want to Search on");
+            Console.WriteLine("(F)ields  |  (A)ge Range  ");
             string answer = Console.ReadLine().Trim();
             if (answer.Length > 0)
             {
                 switch (answer[0].ToString().ToLower())
                 {
-                    case "e":
-                        SearchPersonRegistered(registration, registrationString, searchKey, "");
-                        break;
                     case "f":
-                        SearchPersonRegistered(registration, registrationString, searchKey, "FirstName");
-                        break;
-                    case "l":
-                        SearchPersonRegistered(registration, registrationString, searchKey, "LastName");
+                        SearchPersonRegistered(registration, registrationString);
                         break;
                     case "a":
-                        try
-                        {
-                            ValidateSearchKey(searchKey);
-                            SearchPersonRegistered(registration, registrationString, searchKey, "Age Range");
-                        }
-                        catch (Exception ex)
-                        {
-                            ShowError(ex.Message);
-                        }
-                        break;
-                    case "g":
-                        SearchPersonRegistered(registration, registrationString, searchKey, "Gender");
-                        break;
-                    case "s":
-                        SearchPersonRegistered(registration, registrationString, searchKey, "Status");
-                        break;
-                    case "c":
-                        SearchPersonRegistered(registration, registrationString, searchKey, "City");
-                        break;
-                    case "p":
-                        SearchPersonRegistered(registration, registrationString, searchKey, "Province");
-                        break;
-                    case "r":
-                        SearchPersonRegistered(registration, registrationString, searchKey, "Region");
+                        AgeRangeSearch(registration, registrationString);
                         break;
                     default:
-                        ShowError("Error: Function not found\n");
+                        ShowError("Error: Invalid Answer");
                         break;
+                }
+                AskShowAgain();
+            }
+            else
+            {
+                SearchBy(registration, registrationString);
+            }
+        }
+
+        public static void AgeRangeSearch<T>(IRegistration<T> registration, string registrationString)
+            where T : Person
+        {
+            Console.Write("Age From: ");
+            string from = Console.ReadLine().Trim();
+            if (!int.TryParse(from, out int ageFrom))
+            {
+                ShowError("Invalid Age");
+                AskSearchAgain();
+            }
+
+            Console.Write("To: ");
+            string to = Console.ReadLine().Trim();
+            if (!int.TryParse(to, out int ageTo))
+            {
+                ShowError("Invalid Age");
+                AskSearchAgain();
+            }
+            if (ageFrom > ageTo)
+            {
+                ShowError("Age From is greater than Age To");
+                AskSearchAgain();
+            }
+
+            var personList = registration.GetRegisteredPersons().ToPersonView().SearchByAge(ageFrom,ageTo).ToList();
+            DisplayPersonView(personList);
+        }
+
+        public static void SearchPersonRegistered<T>(IRegistration<T> registration, string registrationString)
+            where T : Person
+        {
+            Console.WriteLine("\nSearch In:(separate by comma)");
+            Console.WriteLine("(F)irst Name  |  (L)ast Name  |  (G)ender  |  (S)tatus  |" +
+                "  (C)ity  |  (P)rovince  |  (R)egion");
+
+            string answer = Console.ReadLine().Trim();
+            if (answer.Length > 0)
+            {
+                List<string> fields = new List<string>();
+                string[] answers = answer.Split(',').Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                try
+                {
+                    foreach (var item in answers)
+                    {
+                        switch (item[0].ToString().ToLower())
+                        {
+                            case "f":
+                                if (!fields.Contains("FirstName")) fields.Add("FirstName");
+                                break;
+                            case "l":
+                                if (!fields.Contains("LastName")) fields.Add("LastName");
+                                break;
+                            case "a":
+                                if (!fields.Contains("AgeRange")) fields.Add("AgeRange");
+                                break;
+                            case "g":
+                                if (!fields.Contains("Gender")) fields.Add("Gender");
+                                break;
+                            case "s":
+                                if (!fields.Contains("Status")) fields.Add("Status");
+                                break;
+                            case "c":
+                                if (!fields.Contains("City")) fields.Add("City");
+                                break;
+                            case "p":
+                                if (!fields.Contains("Province")) fields.Add("Province");
+                                break;
+                            case "r":
+                                if (!fields.Contains("Region")) fields.Add("Region");
+                                break;
+                            default:
+                                throw new Exception("Error: Invalid Input '"+ item.Substring(0, 1).ToLower() + "'");
+                        }
+                    }
+
+                    SearchPersonRegistered(registration , registrationString, fields);
+                }
+                catch (Exception ex)
+                {
+                    ShowError(ex.Message);
                 }
                 AskSearchAgain();
             }
             else
             {
+                ShowError("Error: Invalid Input");
                 SearchPersonRegistered(registration, registrationString);
             }
         }
@@ -596,11 +652,14 @@ namespace LabExerciseAdvance
             }
         }
 
-        public static void SearchPersonRegistered<T>(IRegistration<T> registration, 
-            string registrationString, string key, string field) where T : Person
+        public static void SearchPersonRegistered<T>(IRegistration<T> registration,
+            string registrationString, List<string> fields) where T : Person
         {
-            ShowMessage($"\nSearching for \"{key}\" in {field} at {registrationString} Registration");
-            var personList = registration.SearchRegisteredPersons(key, field);
+            Console.Write("\nSearch For: ");
+            string searchKey = Console.ReadLine().Trim();
+
+            ShowMessage($"\nSearching for \"{searchKey}\" in {String.Join(", ", fields)} at {registrationString} Registration");
+            var personList = registration.GetRegisteredPersons().ToPersonView().Search(searchKey, fields).ToList();
             DisplayPersonView(personList);
         }
 

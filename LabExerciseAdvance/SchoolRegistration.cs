@@ -43,11 +43,6 @@ namespace LabExerciseAdvance
             RegisteredPersons.Add(Person);
         }
 
-        public List<PersonView> SearchRegisteredPersons(string searchKey, string searchField)
-        {
-            return GetRegisteredPersons().ToPersonView().Search(searchKey, searchField).ToList();
-        }
-
         public void UnregisterPerson(int personId)
         {
             T person = GetRegisteredPersons().SingleOrDefault(p => p.ID == personId);

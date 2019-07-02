@@ -48,7 +48,11 @@ namespace LabExerciseAdvance
         public void Validate(string[] values)
         {
             string message = "";
-
+            if (values.Length < 6)
+            {
+                message = "Invalid Input";
+                throw new Exception(message);
+            }
             if (!Regex.IsMatch(values[0], @"^[a-zA-Z\ ]+$"))
             {
                 message += "First Name should contain Alpha characters only\n";
@@ -88,7 +92,6 @@ namespace LabExerciseAdvance
             else
                 AddAs<Infant>(values);
         }
-
         public void AddAs<T>(string[] values) where T : Person, new ()
         {
             T person = new T
@@ -130,8 +133,6 @@ namespace LabExerciseAdvance
             _persons.Add(person);
             IdCount++;
         }
-        
-
         public int GetCityIdByName(string cityName)
         {
             return CityRepo.GetList.SingleOrDefault(c => c.Name == cityName).ID;
