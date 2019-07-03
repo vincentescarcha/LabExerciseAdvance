@@ -12,7 +12,7 @@ namespace LabExerciseAdvance
         void RegisterPerson(T Person);
         void UnregisterPerson(int personId);
         List<T> GetRegisteredPersons();
-        List<PersonView> SearchRegisteredPersons(string FirstName, string LastName, string Gender,
+        List<T> SearchRegisteredPersons(string FirstName, string LastName, string Gender,
                 string Status, string City, string Province, string Region);
         bool IsPersonRegistered(T Person);
         bool IsPersonValid(T Person);

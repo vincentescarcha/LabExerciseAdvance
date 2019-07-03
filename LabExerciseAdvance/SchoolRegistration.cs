@@ -53,61 +53,29 @@ namespace LabExerciseAdvance
             RegisteredPersons.Remove(person);
         }
 
-        public List<PersonView> SearchRegisteredPersons(string FirstName, string LastName, string Gender, string Status, string City, string Province, string Region)
+        public List<T> SearchRegisteredPersons(string FirstName, string LastName, string Gender, string Status, string City, string Province, string Region)
         {
-            List<PersonView> _tempView = new List<PersonView>();
 
-            if (FirstName != "")
-            {
-                List<PersonView> test = GetRegisteredPersons().ToPersonView().
-                    Where(x => x.FirstName.IndexOf(FirstName, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
-                _tempView.AddRange(CheckIfExist(test, _tempView));
-            }
-            if (LastName != "")
-            {
-                List<PersonView> test = GetRegisteredPersons().ToPersonView().
-                    Where(x => x.LastName.IndexOf(LastName, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
-                _tempView.AddRange(CheckIfExist(test, _tempView));
-            }
-            if (Gender != "")
-            {
-                List<PersonView> test = GetRegisteredPersons().ToPersonView().
-                    Where(x => x.Gender.IndexOf(Gender, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
-                _tempView.AddRange(CheckIfExist(test, _tempView));
-            }
-            if (Status != "")
-            {
-                List<PersonView> test = GetRegisteredPersons().ToPersonView().
-                    Where(x => x.Status.IndexOf(Status, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
-                _tempView.AddRange(CheckIfExist(test, _tempView));
-            }
-            if (City != "")
-            {
-                List<PersonView> test = GetRegisteredPersons().ToPersonView().
-                    Where(x => x.City.IndexOf(City, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
-                _tempView.AddRange(CheckIfExist(test, _tempView));
-            }
-            if (Province != "")
-            {
-                List<PersonView> test = GetRegisteredPersons().ToPersonView().
-                    Where(x => x.Province.IndexOf(Province, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
-                _tempView.AddRange(CheckIfExist(test, _tempView));
-            }
-            if (Region != "")
-            {
-                List<PersonView> test = GetRegisteredPersons().ToPersonView().
-                    Where(x => x.Region.IndexOf(Region, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
-                _tempView.AddRange(CheckIfExist(test, _tempView));
-            }
-            return _tempView;
-        }
+            return (from person in GetRegisteredPersons()
 
-        private List<PersonView> CheckIfExist(List<PersonView> _tempPersonView, List<PersonView> actualPersonView)
-        {
-            List<int> ids = actualPersonView.Select(x => x.ID).ToList();
-            List<PersonView> toBeAddedToList = _tempPersonView.Where(x => !ids.Contains(x.ID)).ToList();
+                    join city in Program.CityRepo.GetList
+                        on person.CityId equals city.ID
 
-            return toBeAddedToList;
+                    where (FirstName == "" || (person.FirstName.IndexOf(FirstName, StringComparison.OrdinalIgnoreCase) >= 0)) &&
+
+                        (LastName == "" || (person.LastName.IndexOf(LastName, StringComparison.OrdinalIgnoreCase) >= 0)) &&
+
+                        (Gender == "" || (person.Gender.ToString().IndexOf(Gender, StringComparison.OrdinalIgnoreCase) >= 0)) &&
+
+                        (Status == "" || (person.Status.ToString().IndexOf(Status, StringComparison.OrdinalIgnoreCase) >= 0)) &&
+
+                        (City == "" || (city.Name.IndexOf(City, StringComparison.OrdinalIgnoreCase) >= 0)) &&
+
+                        (Province == "" || (city.Province.IndexOf(Province, StringComparison.OrdinalIgnoreCase) >= 0)) &&
+
+                        (Region == "" || (city.Region.IndexOf(Region, StringComparison.OrdinalIgnoreCase) >= 0))
+
+                    select person).ToList();
         }
     }
 }
