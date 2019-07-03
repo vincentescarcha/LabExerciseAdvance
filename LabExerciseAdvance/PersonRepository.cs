@@ -64,7 +64,10 @@ namespace LabExerciseAdvance
 
             try
             {
-                Common.ParseDate(values[2]);
+                if (Common.ParseDate(values[2]) > DateTime.Now)
+                {
+                    message += "Date Of Birth can not be in future\n";
+                }
             }
             catch
             {
