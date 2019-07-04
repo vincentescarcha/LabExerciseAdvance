@@ -49,11 +49,11 @@ namespace LabExerciseAdvance
                 }
             }
 
-            DisplayPerson(persons);
+            PersonTable(persons);
         }
 
 
-        public static void DisplayPerson(List<Person> persons)
+        public static void PersonTable(List<Person> persons)
         {
             ConsoleTable table = new ConsoleTable("ID", "First Name", "Last Name", "Date of Birth", "Gender", "Status","   ", "   ");
             foreach (var person in persons)
@@ -92,7 +92,7 @@ namespace LabExerciseAdvance
                         InputPerson();
                         break;
                     case "p":
-                        PersonView();
+                        ShowPersonTable();
                         break;
                     case "r":
                         AskTypeForRegistration();
@@ -182,11 +182,11 @@ namespace LabExerciseAdvance
         }
 
 
-        public static void PersonView()
+        public static void ShowPersonTable()
         {
             var personList = PersonRepo.GetList;
             ShowMessage("\nShowing List of Persons");
-            DisplayPerson(personList);
+            PersonTable(personList);
         }
 
 
@@ -450,7 +450,7 @@ namespace LabExerciseAdvance
 
             if (groupBy == "City")
             {
-                dynamic personAnonymous = registeredPersons.Join(CityRepo.GetList, p => p.CityId, c => c.ID,
+                dynamic personDynamic = registeredPersons.Join(CityRepo.GetList, p => p.CityId, c => c.ID,
                     (p, c) => new
                     {
                         p.ID,
@@ -466,11 +466,11 @@ namespace LabExerciseAdvance
                         c.Region
                     }
                     ).GroupBy(x => x.City);
-                DisplayPersonView3(personAnonymous);
+                DisplayDynamicPersonGroup(personDynamic);
             }
             else if (groupBy == "Province")
             {
-                dynamic personAnonymous = registeredPersons.Join(CityRepo.GetList, p => p.CityId, c => c.ID,
+                dynamic personDynamic = registeredPersons.Join(CityRepo.GetList, p => p.CityId, c => c.ID,
                     (p, c) => new
                     {
                         p.ID,
@@ -486,11 +486,11 @@ namespace LabExerciseAdvance
                         c.Region
                     }
                     ).GroupBy(x => x.Province);
-                DisplayPersonView3(personAnonymous);
+                DisplayDynamicPersonGroup(personDynamic);
             }
             else if (groupBy == "Region")
             {
-                dynamic personAnonymous = registeredPersons.Join(CityRepo.GetList, p => p.CityId, c => c.ID,
+                dynamic personDynamic = registeredPersons.Join(CityRepo.GetList, p => p.CityId, c => c.ID,
                     (p, c) => new
                     {
                         p.ID,
@@ -507,32 +507,21 @@ namespace LabExerciseAdvance
                     }
                     ).GroupBy(x => x.Region);
 
-                DisplayPersonView3(personAnonymous);
+                DisplayDynamicPersonGroup(personDynamic);
             }
 
-
-            //Type t = personAnonymous.GetType();
-            //var propertyInfo = t.GetProperty(groupBy);
-            //var groupedPersons = personAnonymous.GroupBy();
-
-            //foreach (var groupedPerson in groupedPersons)
-            //{
-            //    ShowMessage(groupedPerson.Key);
-            //DisplayPersonView2(groupedPerson);
-            //    Console.WriteLine();
-            //}
         }
-        public static void DisplayPersonView3(IEnumerable<IGrouping<dynamic,dynamic>> persons)
+        public static void DisplayDynamicPersonGroup(IEnumerable<IGrouping<dynamic,dynamic>> persons)
         {
             foreach (var groupedPerson in persons)
             {
                 ShowMessage(groupedPerson.Key);
-                DisplayPersonView2(groupedPerson);
+                DisplayDynamicPerson(groupedPerson);
                 Console.WriteLine();
             }
         }
 
-        public static void DisplayPersonView2(IEnumerable<dynamic> persons)
+        public static void DisplayDynamicPerson(IEnumerable<dynamic> persons)
         {
             ConsoleTable table = new ConsoleTable("ID", "First Name", "Last Name", "Age", "Gender",
                                                         "Status", "City", "Province", "Region");
@@ -644,9 +633,7 @@ namespace LabExerciseAdvance
                 AskSearchAgain();
             }
 
-            //var personList = registration.GetRegisteredPersons().ToPersonView().SearchByAge(ageFrom,ageTo).ToList();
-
-            var personAnonymous = from person in registration.GetRegisteredPersons()
+            var personDynamic = from person in registration.GetRegisteredPersons()
 
                                   join cityList in CityRepo.GetList
                                       on person.CityId equals cityList.ID
@@ -668,7 +655,7 @@ namespace LabExerciseAdvance
                                       cityList.Region
                                   };
 
-            DisplayPersonView2(personAnonymous);
+            DisplayDynamicPerson(personDynamic);
         }
         public static void FieldCombinationSearch<T>(IRegistration<T> registration, string registrationString)
             where T : Person
@@ -696,7 +683,7 @@ namespace LabExerciseAdvance
 
             var personList = registration.SearchRegisteredPersons(firstName, lastName, gender, status, city, province, region);
 
-            var personAnonymous = from person in personList
+            var personDynamic = from person in personList
 
                                   join cityList in CityRepo.GetList
                                       on person.CityId equals cityList.ID
@@ -716,7 +703,7 @@ namespace LabExerciseAdvance
                                       cityList.Region
                                   };
 
-            DisplayPersonView2(personAnonymous);
+            DisplayDynamicPerson(personDynamic);
 
             AskSearchAgain();
         }
@@ -734,7 +721,7 @@ namespace LabExerciseAdvance
         }
         public static void ExportToXML<T>(IRegistration<T> registration, string registrationString) where T : Person
         {
-            var personAnonymous = from person in registration.GetRegisteredPersons()
+            var personDynamic = from person in registration.GetRegisteredPersons()
 
                                   join cityList in CityRepo.GetList
                                       on person.CityId equals cityList.ID
@@ -755,7 +742,7 @@ namespace LabExerciseAdvance
 
             var documentNode = new XDocument();
             var personsNode = new XElement("Persons");
-            foreach (var person in personAnonymous)
+            foreach (var person in personDynamic)
             {
                 var personNode = new XElement("Person",
                         new XAttribute("Id", person.ID),
