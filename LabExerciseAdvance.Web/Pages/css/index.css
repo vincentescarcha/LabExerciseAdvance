@@ -1,0 +1,12 @@
+.navbar-header .navbar-brand{
+    font-size: 24px;
+    font-weight: bold;
+    color: #555;
+}
+
+.flowchart table tr>td{
+    border: none;
+}
+.flowchart .btn{
+    color: blue;
+}
