@@ -56,10 +56,9 @@ namespace LabExerciseAdvance
         public List<T> SearchRegisteredPersons(string FirstName, string LastName, string Gender, string Status, string City, string Province, string Region)
         {
 
-            return (from person in GetRegisteredPersons()
 
-                    join city in Program.CityRepo.GetList
-                        on person.CityId equals city.ID
+            return (from person in GetRegisteredPersons().ToPersonView()
+
 
                     where (FirstName == "" || (person.FirstName.IndexOf(FirstName, StringComparison.OrdinalIgnoreCase) >= 0)) &&
 
@@ -69,11 +68,13 @@ namespace LabExerciseAdvance
 
                         (Status == "" || (person.Status.ToString().IndexOf(Status, StringComparison.OrdinalIgnoreCase) >= 0)) &&
 
-                        (City == "" || (city.Name.IndexOf(City, StringComparison.OrdinalIgnoreCase) >= 0)) &&
 
-                        (Province == "" || (city.Province.IndexOf(Province, StringComparison.OrdinalIgnoreCase) >= 0)) &&
+                        (City == "" || (person.City.IndexOf(City, StringComparison.OrdinalIgnoreCase) >= 0)) &&
 
-                        (Region == "" || (city.Region.IndexOf(Region, StringComparison.OrdinalIgnoreCase) >= 0))
+                        (Province == "" || (person.Province.IndexOf(Province, StringComparison.OrdinalIgnoreCase) >= 0)) &&
+
+                        (Region == "" || (person.Region.IndexOf(Region, StringComparison.OrdinalIgnoreCase) >= 0))
+
 
                     select person).ToList();
         }

@@ -2,5 +2,10 @@ TestResults/*
 .vs/*
 LabExerciseAdvance/bin/Debug/*
 LabExerciseAdvance/obj/Debug/*
+
 LabExerciseAdvance.Test/bin/*
 LabExerciseAdvance.Test/obj/*
+
+LabExerciseAdvance.API/bin/*
+LabExerciseAdvance.API/obj/*
+LabExerciseAdvance.API/.vs/*
