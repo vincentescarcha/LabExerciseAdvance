@@ -52,8 +52,9 @@ namespace LabExerciseAdvance
             RegisteredPersons.Remove(person);
         }
 
-        public List<PersonView> SearchRegisteredPersons(string FirstName, string LastName, string Gender, string Status, string City, string Province, string Region)
+        public List<T> SearchRegisteredPersons(string FirstName, string LastName, string Gender, string Status, string City, string Province, string Region)
         {
+
 
             return (from person in GetRegisteredPersons().ToPersonView()
 
@@ -71,7 +72,9 @@ namespace LabExerciseAdvance
 
                         (Region == "" || (person.Region.IndexOf(Region, StringComparison.OrdinalIgnoreCase) >= 0))
 
+
                     select person).ToList();
         }
+
     }
 }
